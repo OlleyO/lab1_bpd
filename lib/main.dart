@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lab_1/screens/lab1_screen.dart';
+import 'package:lab_1/screens/lab2_screen.dart';
 import 'package:lab_1/screens/main_screen.dart';
 
 void main() {
@@ -12,14 +14,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Лабораторна 1',
+      title: 'BPD',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MainScreen(
-        variantNum: 21,
-      ),
+      initialRoute: MainScreen.path,
+      routes: {
+        MainScreen.path: (context) => const MainScreen(),
+        Lab1Screen.path: (context) => const Lab1Screen(
+              variantNum: 21,
+            ),
+        Lab2Screen.path: (context) => const Lab2Screen(),
+      },
     );
   }
 }
