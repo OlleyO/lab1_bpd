@@ -7,20 +7,22 @@ import 'package:lab_1/constants/app_styles.dart';
 import 'package:lab_1/helpers/algorithm.dart';
 import 'package:lab_1/widgets/info_tile.dart';
 
-class MainScreen extends StatefulWidget {
+class Lab1Screen extends StatefulWidget {
+  static const String path = "lab1";
+
   /// Номер варіанту
   final int variantNum;
 
-  const MainScreen({
+  const Lab1Screen({
     Key? key,
     required this.variantNum,
   }) : super(key: key);
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<Lab1Screen> createState() => _Lab1ScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _Lab1ScreenState extends State<Lab1Screen> {
   Algorithm algorithm = Algorithm(
     m: (pow(2, 30) - 1).toInt(),
     a: pow(17, 3).toInt(),
