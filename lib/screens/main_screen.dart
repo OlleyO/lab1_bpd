@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lab_1/constants/app_styles.dart';
 import 'package:lab_1/screens/lab1_screen.dart';
+import 'package:lab_1/screens/lab2_screen.dart';
 
 class MainScreen extends StatelessWidget {
   static const String path = "home";
@@ -29,7 +30,9 @@ class MainScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListTile(
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).pushNamed(Lab2Screen.path);
+                },
                 title: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(

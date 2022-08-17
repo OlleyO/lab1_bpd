@@ -37,7 +37,7 @@ class _Lab1ScreenState extends State<Lab1Screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Генератор псевдо рандомних чисел"),
+        title: const Text("Генератор псевдорандомних чисел"),
       ),
       body: SafeArea(
         child: Padding(
@@ -216,6 +216,7 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                   ),
                 ),
               ),
+              const SizedBox(width: 15.0),
               Expanded(
                 child: Card(
                   child: Padding(
