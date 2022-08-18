@@ -107,13 +107,11 @@ class _Lab1ScreenState extends State<Lab1Screen> {
 
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
                                             backgroundColor: Colors.redAccent,
                                             content: Text(
                                               "Введіть натуральне число",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
+                                              style: AppStyles.titleText,
                                             ),
                                           ),
                                         );
@@ -135,13 +133,11 @@ class _Lab1ScreenState extends State<Lab1Screen> {
 
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
-                                          const SnackBar(
+                                          SnackBar(
                                             backgroundColor: Colors.greenAccent,
                                             content: Text(
                                               "Успішно згенеровано",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
+                                              style: AppStyles.titleText,
                                             ),
                                           ),
                                         );
@@ -173,11 +169,11 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                                 setState(() {
                                   algorithm.reset();
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       backgroundColor: Colors.blueAccent,
                                       content: Text(
                                         "Дані очищено",
-                                        style: TextStyle(color: Colors.white),
+                                        style: AppStyles.titleText,
                                       ),
                                     ),
                                   );
@@ -191,6 +187,7 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                                     await FilePicker.platform.saveFile(
                                   dialogTitle: "Оберіть файл:",
                                   fileName: "lab1_output.txt",
+                                  lockParentWindow: true,
                                 );
 
                                 if (outputFile == null) {

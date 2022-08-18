@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:lab_1/constants/app_styles.dart';
@@ -27,6 +29,17 @@ class _Lab2ScreenState extends State<Lab2Screen> {
   final hashedController = TextEditingController();
   final checksumController1 = TextEditingController();
   final checksumController2 = TextEditingController();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    toHashController.dispose();
+    hashedController.dispose();
+    checksumController1.dispose();
+    checksumController2.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,20 +112,27 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
-                                var result = await Process.run(
-                                  "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
-                                  [
-                                    "-i",
-                                    toHashController.text,
-                                  ],
-                                );
+                                // TODO: KEEP IT
+                                // var result = await Process.run(
+                                //   "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
+                                //   [
+                                //     "-i",
+                                //     toHashController.text,
+                                //   ],
+                                // );
+                                //
+                                // hashedController.value = TextEditingValue(
+                                //   text: result.stdout.toString(),
+                                // );
+
+                                var bytes = utf8.encode(toHashController.text);
+
+                                var digest =
+                                    md5.convert(bytes).toString().toUpperCase();
 
                                 hashedController.value = TextEditingValue(
-                                    text: result.stdout.toString());
-
-                                // setState(() {
-                                //   hashedText = result.stdout.toString();
-                                // });
+                                  text: digest,
+                                );
                               },
                               child: const Text(
                                 "Захешувати",
@@ -124,6 +144,7 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                                     await FilePicker.platform.saveFile(
                                   dialogTitle: "Оберіть файл:",
                                   fileName: "lab2_output.txt",
+                                  lockParentWindow: true,
                                 );
 
                                 if (outputFile == null) {
@@ -158,14 +179,16 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                             readOnly: true,
                             controller: checksumController1,
                             decoration: InputDecoration(
-                              labelText: "Файл1",
+                              labelText: "Файл для перевірки",
                             ),
                           ),
                           trailing: IconButton(
                             icon: Icon(Icons.folder_open_outlined),
                             onPressed: () async {
-                              final res = await FilePicker.platform
-                                  .pickFiles(dialogTitle: "Оберіть файл:");
+                              final res = await FilePicker.platform.pickFiles(
+                                dialogTitle: "Оберіть файл:",
+                                lockParentWindow: true,
+                              );
 
                               if (res != null) {
                                 checksumController1.value =
@@ -183,14 +206,16 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                             readOnly: true,
                             controller: checksumController2,
                             decoration: InputDecoration(
-                              labelText: "Файл2",
+                              labelText: "Файл, що містить хеш",
                             ),
                           ),
                           trailing: IconButton(
                             icon: Icon(Icons.folder_open_outlined),
                             onPressed: () async {
-                              final res = await FilePicker.platform
-                                  .pickFiles(dialogTitle: "Оберіть файл:");
+                              final res = await FilePicker.platform.pickFiles(
+                                dialogTitle: "Оберіть файл:",
+                                lockParentWindow: true,
+                              );
 
                               if (res != null) {
                                 checksumController2.value =
@@ -206,17 +231,55 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                           alignment: Alignment.centerRight,
                           child: ElevatedButton(
                             onPressed: () async {
-                              var result = await Process.run(
-                                "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
-                                [
-                                  "-if",
-                                  checksumController1.text,
-                                  "-cif",
-                                  checksumController2.text,
-                                ],
-                              );
+                              // var result = await Process.run(
+                              //   "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
+                              //   [
+                              //     "-if",
+                              //     checksumController1.text,
+                              //     "-cif",
+                              //     checksumController2.text,
+                              //   ],
+                              // );
+                              //
+                              // print(result.stdout);
 
-                              print(result.stdout);
+                              final file1 = File(checksumController1.text);
+
+                              final text1 = await file1.readAsString();
+
+                              final file2 = File(checksumController2.text);
+
+                              final hashed = md5
+                                  .convert(utf8.encode(text1))
+                                  .toString()
+                                  .toUpperCase();
+
+                              final hash = await file2.readAsString();
+
+                              print({
+                                "hash": hash,
+                                "hashed": hashed,
+                              });
+
+                              if (hashed == hash) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        "Файл ${checksumController1.text} цілий"),
+                                    backgroundColor: Colors.greenAccent,
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "Файл ${checksumController1.text} пошкоджений",
+                                      style: AppStyles.titleText,
+                                    ),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
                             },
                             child: Text(
                               "Перевірити",
