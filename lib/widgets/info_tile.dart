@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../constants/app_styles.dart';
 
 class InfoTile extends StatelessWidget {
   final String title;
-  final int value;
+  final void Function(String?)? onChange;
+  final TextEditingController controller;
 
-  const InfoTile({
-    Key? key,
-    required this.value,
-    required this.title,
-  }) : super(key: key);
+  const InfoTile(
+      {Key? key, required this.title, required this.controller, this.onChange})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +18,14 @@ class InfoTile extends StatelessWidget {
         title,
         style: AppStyles.mainText,
       ),
-      trailing: Text(
-        NumberFormat().format(value),
-        style: AppStyles.mainText,
+      trailing: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 200,
+        ),
+        child: TextField(
+          controller: controller,
+          onChanged: onChange,
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lab_1/screens/lab1_screen.dart';
 import 'package:lab_1/screens/lab2_screen.dart';
+import 'package:lab_1/screens/lab3_screen.dart';
 import 'package:lab_1/screens/main_screen.dart';
 
 void main() {
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
               variantNum: 21,
             ),
         Lab2Screen.path: (context) => const Lab2Screen(),
+        Lab3Screen.path: (context) => const Lab3Screen(),
       },
     );
   }

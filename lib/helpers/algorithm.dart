@@ -3,17 +3,15 @@ import 'dart:collection';
 import 'package:intl/intl.dart';
 
 class Algorithm {
-  /// Модуль порівняння
   final int m;
 
-  /// Множник
   final int a;
 
-  /// Приріст
   final int c;
 
-  /// початкове значення
   final int x0;
+
+  int period = -1;
 
   List<int> _generatedNumbers = [];
 
@@ -31,6 +29,11 @@ class Algorithm {
 
     for (int i = 0; i < n; i++) {
       xi = (a * xi + c) % m;
+      var indexOf = _generatedNumbers.lastIndexOf(xi);
+
+      if (indexOf != -1) {
+        period = _generatedNumbers.length - indexOf;
+      }
 
       _generatedNumbers.add(xi);
     }
@@ -38,29 +41,29 @@ class Algorithm {
     return UnmodifiableListView(_generatedNumbers);
   }
 
+  Stream<int> generateNPseudoNumbersAsync(int n) async* {
+    int xi = x0;
+
+    for (int i = 0; i < n; i++) {
+      xi = (a * xi + c) % m;
+
+      yield xi;
+    }
+  }
+
   UnmodifiableListView<int> get generatedNumbers =>
       UnmodifiableListView(_generatedNumbers);
 
-  String formattedGeneratedNumbers({required OutputType outputType}) =>
+  String formattedGeneratedNumbers(
+          {required OutputType outputType, int? amount}) =>
       _generatedNumbers
           .map((n) => NumberFormat().format(n))
+          .toList()
+          .sublist(0, amount == null ? null : amount)
           .join(outputType == OutputType.application ? "; " : "\n");
 
   void reset() {
     _generatedNumbers = [];
-  }
-
-  int get period {
-    int zeroIndex = 0;
-
-    if (_generatedNumbers.isEmpty) {
-      return -1;
-    }
-
-    int indexOfFirstRepeat =
-        _generatedNumbers.indexOf(_generatedNumbers[zeroIndex], zeroIndex + 1);
-
-    return indexOfFirstRepeat - zeroIndex;
   }
 }
 

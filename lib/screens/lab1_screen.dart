@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'dart:math';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lab_1/constants/app_styles.dart';
 import 'package:lab_1/helpers/algorithm.dart';
+import 'package:lab_1/helpers/text.dart';
 import 'package:lab_1/widgets/info_tile.dart';
 
 class Lab1Screen extends StatefulWidget {
@@ -23,15 +23,28 @@ class Lab1Screen extends StatefulWidget {
 }
 
 class _Lab1ScreenState extends State<Lab1Screen> {
-  Algorithm algorithm = Algorithm(
-    m: (pow(2, 30) - 1).toInt(),
-    a: pow(17, 3).toInt(),
-    c: 10946,
-    x0: 29,
-  );
-
   int numberOfNumbers = 0;
   bool isNumberValid = false;
+
+  final _mController = TextEditingController();
+  final _aController = TextEditingController();
+  final _cConroller = TextEditingController();
+  final _xoController = TextEditingController();
+  final _periodController = TextEditingController();
+  final _toDisplatController = TextEditingController();
+
+  Algorithm? algorithm;
+
+  @override
+  void dispose() {
+    _mController.dispose();
+    _aController.dispose();
+    _xoController.dispose();
+    _periodController.dispose();
+    _toDisplatController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,19 +79,19 @@ class _Lab1ScreenState extends State<Lab1Screen> {
 
                         InfoTile(
                           title: "Модуль порівняння, m:",
-                          value: algorithm.m,
+                          controller: _mController,
                         ),
                         InfoTile(
                           title: "Множник, a:",
-                          value: algorithm.a,
+                          controller: _aController,
                         ),
                         InfoTile(
                           title: "Приріст, c:",
-                          value: algorithm.c,
+                          controller: _cConroller,
                         ),
                         InfoTile(
                           title: "Початкове значення, X0:",
-                          value: algorithm.x0,
+                          controller: _xoController,
                         ),
 
                         const SizedBox(
@@ -126,22 +139,43 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                             ),
                             ElevatedButton(
                               onPressed: isNumberValid
-                                  ? () {
+                                  ? () async {
                                       setState(() {
-                                        algorithm.generateNPseudoRandNumbers(
-                                            n: numberOfNumbers);
-
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                            backgroundColor: Colors.greenAccent,
-                                            content: Text(
-                                              "Успішно згенеровано",
-                                              style: AppStyles.titleText,
-                                            ),
-                                          ),
-                                        );
+                                        algorithm = Algorithm(
+                                            a: TextHelper.fieldTextToNumber(
+                                                    _aController.text)!
+                                                .toInt(),
+                                            c: TextHelper.fieldTextToNumber(
+                                                    _cConroller.text)!
+                                                .toInt(),
+                                            m: TextHelper.fieldTextToNumber(
+                                                    _mController.text)!
+                                                .toInt(),
+                                            x0: TextHelper.fieldTextToNumber(
+                                                    _xoController.text)!
+                                                .toInt());
                                       });
+
+                                      final file = File(
+                                          "D:\\labs_bpd\\lab_1\\tests\\output.txt");
+
+                                      await for (final number in algorithm!
+                                          .generateNPseudoNumbersAsync(
+                                              numberOfNumbers)) {
+                                        print('writing to file...');
+                                        await file.writeAsString('$number\n');
+                                      }
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          backgroundColor: Colors.greenAccent,
+                                          content: Text(
+                                            "Успішно згенеровано",
+                                            style: AppStyles.titleText,
+                                          ),
+                                        ),
+                                      );
                                     }
                                   : null,
                               child: const Text(
@@ -167,7 +201,7 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                               ),
                               onPressed: () {
                                 setState(() {
-                                  algorithm.reset();
+                                  algorithm!.reset();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       backgroundColor: Colors.blueAccent,
@@ -183,21 +217,21 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                String? outputFile =
-                                    await FilePicker.platform.saveFile(
-                                  dialogTitle: "Оберіть файл:",
-                                  fileName: "lab1_output.txt",
-                                  lockParentWindow: true,
-                                );
-
-                                if (outputFile == null) {
-                                } else {
-                                  var file =
-                                      await File(outputFile).writeAsString(
-                                    algorithm.formattedGeneratedNumbers(
-                                        outputType: OutputType.file),
-                                  );
-                                }
+                                // String? outputFile =
+                                //     await FilePicker.platform.saveFile(
+                                //   dialogTitle: "Оберіть файл:",
+                                //   fileName: "lab1_output.txt",
+                                //   lockParentWindow: true,
+                                // );
+                                //
+                                // if (outputFile == null) {
+                                // } else {
+                                //   var file =
+                                //       await File(outputFile).writeAsString(
+                                //     algorithm!.formattedGeneratedNumbers(
+                                //         outputType: OutputType.file),
+                                //   );
+                                // }
                               },
                               child: const Text(
                                 "Зберегти",
@@ -234,9 +268,20 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                         const SizedBox(
                           height: 25.0,
                         ),
+                        TextFormField(
+                          controller: _periodController,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            labelText: "Період",
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20.0,
+                        ),
                         InfoTile(
-                          title: "Період:",
-                          value: algorithm.period,
+                          title: "Показати n перших чисел",
+                          controller: _toDisplatController,
+                          onChange: (val) => setState(() {}),
                         ),
                         const Divider(),
                         const SizedBox(
@@ -245,8 +290,20 @@ class _Lab1ScreenState extends State<Lab1Screen> {
                         Expanded(
                           child: SingleChildScrollView(
                             child: Text(
-                              algorithm.formattedGeneratedNumbers(
-                                  outputType: OutputType.application),
+                              algorithm != null
+                                  ? algorithm!.generatedNumbers
+                                      .map((n) => NumberFormat().format(n))
+                                      .toList()
+                                      .sublist(
+                                          0,
+                                          int.tryParse(_toDisplatController
+                                                      .text) ==
+                                                  null
+                                              ? null
+                                              : int.parse(
+                                                  _toDisplatController.text))
+                                      .join("; ")
+                                  : "",
                               style: AppStyles.mainText
                                   .copyWith(wordSpacing: 55.0),
                             ),

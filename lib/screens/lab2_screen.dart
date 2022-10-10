@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:lab_1/constants/app_styles.dart';
+import 'package:lab_1/constants/test_data.dart';
 
 class Lab2Screen extends StatefulWidget {
   static const String path = "lab2";
@@ -15,24 +16,18 @@ class Lab2Screen extends StatefulWidget {
   State<Lab2Screen> createState() => _Lab2ScreenState();
 }
 
-// var result = await Process.run(
-// "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
-// [
-// "-h",
-// ],
-// );
-//
-// print(result.stdout);
-
 class _Lab2ScreenState extends State<Lab2Screen> {
   final toHashController = TextEditingController();
   final hashedController = TextEditingController();
   final checksumController1 = TextEditingController();
   final checksumController2 = TextEditingController();
 
+  var textToHash = <int>[];
+
+  var runTest = false;
+
   @override
   void dispose() {
-    // TODO: implement dispose
     toHashController.dispose();
     hashedController.dispose();
     checksumController1.dispose();
@@ -59,12 +54,27 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        Text(
+                          "Хешування",
+                          style: AppStyles.titleText,
+                        ),
+                        SizedBox(
+                          height: 15.0,
+                        ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: TextField(
-                            controller: toHashController,
-                            decoration: InputDecoration(
-                              labelText: "Текст",
+                          title: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: 50.0,
+                            ),
+                            child: SingleChildScrollView(
+                              child: TextField(
+                                controller: toHashController,
+                                maxLines: null,
+                                decoration: InputDecoration(
+                                  labelText: "Текст",
+                                ),
+                              ),
                             ),
                           ),
                           trailing: IconButton(
@@ -80,14 +90,14 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                               } else {
                                 final file = File(result.files.first.path!);
 
-                                final text = await file.readAsString();
+                                var text = "";
 
-                                print(text);
+                                textToHash = file.readAsBytesSync();
 
                                 toHashController.value = TextEditingValue(
-                                  text: text,
+                                  text: file.path,
                                   selection: TextSelection.fromPosition(
-                                    TextPosition(offset: text.length),
+                                    TextPosition(offset: file.path.length),
                                   ),
                                 );
                               }
@@ -112,23 +122,7 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                           children: [
                             ElevatedButton(
                               onPressed: () async {
-                                // TODO: KEEP IT
-                                // var result = await Process.run(
-                                //   "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
-                                //   [
-                                //     "-i",
-                                //     toHashController.text,
-                                //   ],
-                                // );
-                                //
-                                // hashedController.value = TextEditingValue(
-                                //   text: result.stdout.toString(),
-                                // );
-
-                                var bytes = utf8.encode(toHashController.text);
-
-                                var digest =
-                                    md5.convert(bytes).toString().toUpperCase();
+                                var digest = md5.convert(textToHash).toString();
 
                                 hashedController.value = TextEditingValue(
                                   text: digest,
@@ -231,28 +225,14 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                           alignment: Alignment.centerRight,
                           child: ElevatedButton(
                             onPressed: () async {
-                              // var result = await Process.run(
-                              //   "D:\\labs_bpd\\lab2_c\\x64\\Release\\lab2_c",
-                              //   [
-                              //     "-if",
-                              //     checksumController1.text,
-                              //     "-cif",
-                              //     checksumController2.text,
-                              //   ],
-                              // );
-                              //
-                              // print(result.stdout);
-
+                              var text1 = <int>[];
                               final file1 = File(checksumController1.text);
 
-                              final text1 = await file1.readAsString();
+                              text1 = file1.readAsBytesSync();
 
                               final file2 = File(checksumController2.text);
 
-                              final hashed = md5
-                                  .convert(utf8.encode(text1))
-                                  .toString()
-                                  .toUpperCase();
+                              final hashed = md5.convert(text1).toString();
 
                               final hash = await file2.readAsString();
 
@@ -291,27 +271,71 @@ class _Lab2ScreenState extends State<Lab2Screen> {
                   ),
                 ),
               ),
-              // const SizedBox(width: 15.0),
-              // Expanded(
-              //   child: Card(
-              //     child: Padding(
-              //       padding: const EdgeInsets.all(15.0),
-              //       child: Column(
-              //         children: <Widget>[
-              //           TextField(
-              //             readOnly: true,
-              //             decoration: InputDecoration(
-              //               labelText: "Захешований текст",
-              //             ),
-              //           ),
-              //           SizedBox(
-              //             height: 15.0,
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
+              const SizedBox(width: 15.0),
+              Expanded(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Тести",
+                              style: AppStyles.titleText,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  runTest = true;
+                                });
+                              },
+                              child: Text("Запустити"),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 15.0,
+                        ),
+                        (() => runTest
+                            ? Expanded(
+                                child: ListView.builder(
+                                  itemBuilder: (context, index) {
+                                    final item =
+                                        TestData.lab2.entries.toList()[index];
+
+                                    final hash = md5
+                                        .convert(utf8.encode(item.key))
+                                        .toString()
+                                        .toUpperCase();
+
+                                    final asExpected = item.value == hash;
+
+                                    return ListTile(
+                                      title: Text(
+                                          "H(${item.key}) expected ${item.value} actual $hash"),
+                                      trailing: asExpected
+                                          ? Icon(
+                                              Icons.check,
+                                              color: Colors.greenAccent,
+                                            )
+                                          : Icon(
+                                              Icons.close,
+                                              color: Colors.redAccent,
+                                            ),
+                                    );
+                                  },
+                                  itemCount: TestData.lab2.length,
+                                ),
+                              )
+                            : Container())()
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
