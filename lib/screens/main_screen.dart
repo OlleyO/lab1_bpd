@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lab_1/constants/app_styles.dart';
 import 'package:lab_1/screens/lab1_screen.dart';
 import 'package:lab_1/screens/lab2_screen.dart';
+import 'package:lab_1/screens/lab4_screen.dart';
 
 import 'lab3_screen.dart';
 
@@ -60,7 +61,9 @@ class MainScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListTile(
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context).pushNamed(Lab4Screen.path);
+                },
                 title: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
